@@ -3,12 +3,15 @@ const path = require('path')
 
 module.exports = function(app) {
     const dbPath = path.join(__dirname, '../db', 'db.json')
+    const assignIds = (arr) => {
+        arr.forEach((el,i) => el.id = i)
+    }
     app.get('/api/notes', (req, res) => {
         fs.readFile(dbPath, "utf8", (err, data) => {
             if (err) {
               return console.log(err);
             }
-            res.json(data);
+            res.json(JSON.parse(data));
           });
     })
 
@@ -19,7 +22,8 @@ module.exports = function(app) {
             }
             const arrayData = JSON.parse(data);
             arrayData.push(req.body)
-            console.log(arrayData)
+            assignIds(arrayData);
+            res.json(arrayData)
             fs.writeFile(dbPath, JSON.stringify(arrayData), (err) => {
                 if (err) {
                   return console.log(err);
@@ -29,12 +33,22 @@ module.exports = function(app) {
         });
     })
 
-    // app.delete('/api/notes', (req, res) => {
-    //     fs.appendFile("../db/db.json", "utf8", function(err, data) {
-    //         if (err) {
-    //           return console.log(err);
-    //         }
-    //         console.log(data);
-    //       });
-    // })
+    app.delete('/api/notes/:id', (req, res) => {
+        fs.readFile(dbPath, "utf8", (err, data) => {
+            if (err) {
+              return console.log(err);
+            }
+            let arrayData = JSON.parse(data);
+            arrayData.splice(req.params.id, 1);
+            console.log(arrayData)
+            assignIds(arrayData);
+            res.json(arrayData);
+            fs.writeFile(dbPath, JSON.stringify(arrayData), (err) => {
+                if (err) {
+                  return console.log(err);
+                }
+                console.log('File was deleted!');
+              });
+        });
+    })
 }
