@@ -11,16 +11,24 @@ module.exports = function(app) {
             res.json(data);
           });
     })
+
     app.post('/api/notes', (req, res) => {
-        fs.appendFile(dbPath, req.body, "utf8", (err) => {
+        fs.readFile(dbPath, "utf8", (err, data) => {
             if (err) {
               return console.log(err);
             }
-            console.log('File was appended!')
-          });
-        console.log(req.body);
-        res.send(req.body)
+            const arrayData = JSON.parse(data);
+            arrayData.push(req.body)
+            console.log(arrayData)
+            fs.writeFile(dbPath, JSON.stringify(arrayData), (err) => {
+                if (err) {
+                  return console.log(err);
+                }
+                console.log('File was appended!')
+              });
+        });
     })
+
     // app.delete('/api/notes', (req, res) => {
     //     fs.appendFile("../db/db.json", "utf8", function(err, data) {
     //         if (err) {
